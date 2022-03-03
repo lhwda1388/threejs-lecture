@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: Geometry 기본
+// ----- 주제: Geometry 정점(Vertex) position 이용
 
 export default function example() {
   // Renderer
@@ -23,7 +23,7 @@ export default function example() {
     0.1,
     1000,
   );
-  camera.position.z = 4;
+  camera.position.z = 10;
   scene.add(camera);
 
   // Light
@@ -37,23 +37,57 @@ export default function example() {
 
   // Controls
   const controls = new OrbitControls(camera, renderer.domElement);
-  console.log('test2');
 
   // Mesh
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const geometry = new THREE.SphereGeometry(5, 64, 64);
   const material = new THREE.MeshStandardMaterial({
-    color: 'hotpink',
+    color: 'orangered',
     // wireframe: true,
     side: THREE.DoubleSide,
+    flatShading: true, // 각지게 표현(폴리곤 효과 만들때)
   });
+
   const mesh = new THREE.Mesh(geometry, material);
+
   scene.add(mesh);
+
+  const positionArray = geometry.getAttribute('position').array;
+  const position = geometry.getAttribute('position');
+  const randomArray: number[] = [];
+  for (let i = 0; i < positionArray.length; i += 3) {
+    // 정점(Vertex) 한 개의 x, y, z 좌표를 랜덤으로 조정
+    position.setX(i, position.getX(i) + (Math.random() - 0.5) * 0.2);
+    position.setY(i + 1, position.getY(i + 1) + (Math.random() - 0.5) * 0.2);
+    position.setZ(i + 2, position.getZ(i + 2) + (Math.random() - 0.5) * 0.2);
+    randomArray[i] = (Math.random() - 0.5) * 0.2;
+    randomArray[i + 1] = (Math.random() - 0.5) * 0.2;
+    randomArray[i + 2] = (Math.random() - 0.5) * 0.2;
+  }
 
   // 그리기
   const clock = new THREE.Clock();
 
   function draw() {
-    const delta = clock.getDelta();
+    const time = clock.getElapsedTime() * 3;
+
+    for (let i = 0; i < positionArray.length; i += 3) {
+      position.setX(
+        i,
+        position.getX(i) + Math.sin(time + randomArray[i] * 100) * 0.001,
+      );
+      position.setY(
+        i + 1,
+        position.getY(i + 1) +
+          Math.sin(time + randomArray[i + 1] * 100) * 0.001,
+      );
+      position.setZ(
+        i + 2,
+        position.getZ(i + 2) +
+          Math.sin(time + randomArray[i + 2] * 100) * 0.001,
+      );
+    }
+
+    position.needsUpdate = true;
 
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);

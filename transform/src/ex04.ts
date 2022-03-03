@@ -83,7 +83,7 @@ export default function example() {
 
   // GridHelper
   const gridHelper = new THREE.GridHelper(10);
-  // scene.add(gridHelper);
+  scene.add(gridHelper);
 
   // Dat GUI
   const gui = new dat.GUI();
