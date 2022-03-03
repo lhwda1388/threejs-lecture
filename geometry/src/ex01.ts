@@ -37,6 +37,7 @@ export default function example() {
 
   // Controls
   const controls = new OrbitControls(camera, renderer.domElement);
+  console.log('test');
 
   // Mesh
   const geometry = new THREE.BoxGeometry(1, 1, 1);
