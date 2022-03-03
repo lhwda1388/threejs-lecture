@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import dat from 'dat.gui';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: 위치이동 position
+// ----- 주제: Geometry 기본
 
 export default function example() {
   // Renderer
@@ -23,7 +23,6 @@ export default function example() {
     0.1,
     1000,
   );
-  camera.position.y = 1.5;
   camera.position.z = 4;
   scene.add(camera);
 
@@ -36,27 +35,18 @@ export default function example() {
   directionalLight.position.z = 2;
   scene.add(directionalLight);
 
+  // Controls
+  const controls = new OrbitControls(camera, renderer.domElement);
+
   // Mesh
   const geometry = new THREE.BoxGeometry(1, 1, 1);
   const material = new THREE.MeshStandardMaterial({
-    color: 'seagreen',
+    color: 'hotpink',
+    // wireframe: true,
+    side: THREE.DoubleSide,
   });
   const mesh = new THREE.Mesh(geometry, material);
   scene.add(mesh);
-
-  // AxesHelper
-  const axesHelper = new THREE.AxesHelper(3);
-  scene.add(axesHelper);
-
-  // GridHelper
-  const gridHelper = new THREE.GridHelper(10);
-  scene.add(gridHelper);
-
-  // Dat GUI
-  const gui = new dat.GUI();
-  gui.add(camera.position, 'x', -5, 5, 0.1).name('카메라 X');
-  gui.add(camera.position, 'y', -5, 5, 0.1).name('카메라 Y');
-  gui.add(camera.position, 'z', 2, 10, 0.1).name('카메라 Z');
 
   // 그리기
   const clock = new THREE.Clock();
@@ -64,10 +54,6 @@ export default function example() {
   function draw() {
     const delta = clock.getDelta();
 
-    mesh.position.set(-1, 2, 0); // vec3
-    // console.log(mesh.position.length); // 벡터 길이
-    // console.log(mesh.position.distanceTo(new THREE.Vector3(1, 2, 0))); // 대상과의 거리
-    console.log(mesh.position.distanceTo(camera.position));
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);
   }
