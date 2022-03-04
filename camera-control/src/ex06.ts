@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: OrbitControls
+import { DragControls } from 'three/examples/jsm/controls/DragControls';
+
+// ----- 주제: DragControls
 
 export default function example() {
   // Renderer
@@ -36,20 +37,9 @@ export default function example() {
   directionalLight.position.z = 2;
   scene.add(directionalLight);
 
-  // Controls
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true; // 컨트롤에 무게감 적용
-  // controls.enableZoom = false; // 줌 가능여부
-  controls.maxDistance = 10; // 멀어질수있는 최대 거리
-  controls.minDistance = 5;
-  controls.minPolarAngle = THREE.MathUtils.degToRad(0);
-  controls.maxPolarAngle = THREE.MathUtils.degToRad(180);
-  // controls.target.set(2, 2, 2); // 회전의 중심점을 잡아줌
-  controls.autoRotate = true; // 자동 회점
-  controls.autoRotateSpeed = 3;
-
   // Mesh
   const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const meshes = [];
   for (let i = 0; i < 30; i++) {
     // 최소 범위 rgb 50 부터 나오게(검정바탕에선 안보임)
     const material = new THREE.MeshStandardMaterial({
@@ -58,20 +48,44 @@ export default function example() {
         ${50 + Math.floor(Math.random() * 205)},
         ${50 + Math.floor(Math.random() * 205)})
       `,
+      transparent: true,
     });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.x = Math.random() * 5 - 2.5; // 좌표의 범위를 -범위도 주기위해
     mesh.position.y = Math.random() * 5 - 2.5;
     mesh.position.z = Math.random() * 5 - 2.5;
+    mesh.name = `box-${i}`;
     scene.add(mesh);
+    meshes.push(mesh);
   }
+
+  // Controls
+  const controls = new DragControls(meshes, camera, renderer.domElement);
+
+  controls.addEventListener('hoveron', (e) => {
+    console.log(e);
+    e.object.material.opacity = 0.5;
+  });
+
+  controls.addEventListener('hoveroff', (e) => {
+    console.log(e);
+    e.object.material.opacity = 1;
+  });
+
+  controls.addEventListener('dragstart', (e) => {
+    console.log(e);
+  });
+
+  controls.addEventListener('dragend', (e) => {
+    console.log(e);
+  });
 
   // 그리기
   const clock = new THREE.Clock();
 
   function draw() {
     const delta = clock.getDelta();
-    controls.update();
+
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);
   }

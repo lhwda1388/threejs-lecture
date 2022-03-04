@@ -1,7 +1,9 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: OrbitControls
+import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
+
+// ----- 주제: FirstPersonControls
+// FlyControls 대체 구현체
 
 export default function example() {
   // Renderer
@@ -37,16 +39,11 @@ export default function example() {
   scene.add(directionalLight);
 
   // Controls
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true; // 컨트롤에 무게감 적용
-  // controls.enableZoom = false; // 줌 가능여부
-  controls.maxDistance = 10; // 멀어질수있는 최대 거리
-  controls.minDistance = 5;
-  controls.minPolarAngle = THREE.MathUtils.degToRad(0);
-  controls.maxPolarAngle = THREE.MathUtils.degToRad(180);
-  // controls.target.set(2, 2, 2); // 회전의 중심점을 잡아줌
-  controls.autoRotate = true; // 자동 회점
-  controls.autoRotateSpeed = 3;
+  const controls = new FirstPersonControls(camera, renderer.domElement);
+  // controls.movementSpeed = 5;
+  // controls.activeLook = false;
+  // controls.lookSpeed = 0.1;
+  // controls.autoForward = true;
 
   // Mesh
   const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -71,7 +68,8 @@ export default function example() {
 
   function draw() {
     const delta = clock.getDelta();
-    controls.update();
+    controls.update(delta);
+
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);
   }

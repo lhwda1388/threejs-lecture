@@ -1,7 +1,11 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: OrbitControls
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
+
+// ----- 주제: PointerLockControls
+// 포인터락 API 기반(https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API)
+// 1인칭 3D게임 컨트롤용
+// 유저가 이벤트를 발생시 포인터가 lock이된다.
 
 export default function example() {
   // Renderer
@@ -37,16 +41,19 @@ export default function example() {
   scene.add(directionalLight);
 
   // Controls
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true; // 컨트롤에 무게감 적용
-  // controls.enableZoom = false; // 줌 가능여부
-  controls.maxDistance = 10; // 멀어질수있는 최대 거리
-  controls.minDistance = 5;
-  controls.minPolarAngle = THREE.MathUtils.degToRad(0);
-  controls.maxPolarAngle = THREE.MathUtils.degToRad(180);
-  // controls.target.set(2, 2, 2); // 회전의 중심점을 잡아줌
-  controls.autoRotate = true; // 자동 회점
-  controls.autoRotateSpeed = 3;
+
+  const controls = new PointerLockControls(camera, renderer.domElement);
+  controls.domElement.addEventListener('click', () => {
+    controls.lock();
+  });
+
+  controls.addEventListener('lock', () => {
+    console.log('lock');
+  });
+
+  controls.addEventListener('unlock', () => {
+    console.log('unlock');
+  });
 
   // Mesh
   const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -71,7 +78,7 @@ export default function example() {
 
   function draw() {
     const delta = clock.getDelta();
-    controls.update();
+
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);
   }
