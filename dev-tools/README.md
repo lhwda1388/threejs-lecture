@@ -1,4 +1,4 @@
-# Webpack Template
+# DevTools Example
 
 ## Env
 

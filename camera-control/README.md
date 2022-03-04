@@ -1,4 +1,4 @@
-# Webpack Template
+# Camera Control Example
 
 ## Env
 

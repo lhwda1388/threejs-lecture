@@ -1,4 +1,4 @@
-# Webpack Template
+# Geometry Example
 
 ## Env
 

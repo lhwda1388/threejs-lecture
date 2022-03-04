@@ -1,4 +1,4 @@
-# Webpack Template
+# Three.js Basic Example
 
 ## Env
 
