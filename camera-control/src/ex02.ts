@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { MOUSE } from 'three';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 
 // ----- 주제: TrackballControls
