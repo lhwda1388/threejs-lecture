@@ -1,10 +1,13 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 // ----- 주제: MeshBasicMaterial
+// 입체감이 없음 - 빛, 그림자 영향 받지 않음
+// 빛, 그림자 등 영향을 받지 않아 입체감 표시할 필요가 없어 머테리얼중 성능은 가장 좋음.
 
 export default function example() {
   // Renderer
-  const canvas = document.getElementById('#canvas') as HTMLCanvasElement;
+  const canvas = document.getElementById('canvas') as HTMLCanvasElement;
   const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,
@@ -36,10 +39,11 @@ export default function example() {
   scene.add(directionalLight);
 
   // Controls
+  const controls = new OrbitControls(camera, renderer.domElement);
 
   // Mesh
   const geometry = new THREE.BoxGeometry(1, 1, 1);
-  const material = new THREE.MeshStandardMaterial({
+  const material = new THREE.MeshBasicMaterial({
     color: 'seagreen',
   });
   const mesh = new THREE.Mesh(geometry, material);
@@ -50,7 +54,7 @@ export default function example() {
 
   function draw() {
     const delta = clock.getDelta();
-
+    controls.update();
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);
   }
