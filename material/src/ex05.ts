@@ -1,10 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: MeshLaberMaterial, MeshPhongMaterial
-// 조명에 영향을 받음
-// MeshLambertMaterial: 하이라이트, 반사광 없는재질
-// MeshPhongMaterial: 하이라이트 반사광 있는 재질
+// ----- 주제: side
+// 면의 앞면 뒷면을 보이게 할지에 대한 설정
 
 export default function example() {
   // Renderer
@@ -36,30 +34,26 @@ export default function example() {
   scene.add(ambientLight);
 
   const directionalLight = new THREE.DirectionalLight('white', 1);
-  directionalLight.position.x = 1;
-  directionalLight.position.z = 2;
+  directionalLight.position.set(1, 1, 2);
   scene.add(directionalLight);
 
   // Controls
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.autoRotate = true;
+  // controls.autoRotate = true;
 
   // Mesh
-  const geometry = new THREE.SphereGeometry(1, 32, 32);
-  //  하이라이트, 반사광 없는재질
-  const material1 = new THREE.MeshLambertMaterial({
-    color: 'orange',
+  const geometry = new THREE.BoxGeometry(2, 2, 2);
+
+  const material = new THREE.MeshStandardMaterial({
+    color: 'orangered',
+    roughness: 0.4, // 거칠기
+    metalness: 0.5, // 금속성
+    // flatShading: true,
+    side: THREE.BackSide,
   });
-  // 하이라이트, 반사광 표현가능 재질
-  const material2 = new THREE.MeshPhongMaterial({
-    color: 'red',
-    shininess: 1000,
-  });
-  const mesh1 = new THREE.Mesh(geometry, material1);
-  const mesh2 = new THREE.Mesh(geometry, material2);
-  mesh1.position.x = -1.5;
-  mesh2.position.x = 1.5;
-  scene.add(mesh1, mesh2);
+
+  const mesh1 = new THREE.Mesh(geometry, material);
+  scene.add(mesh1);
 
   // 그리기
   const clock = new THREE.Clock();
