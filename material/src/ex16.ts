@@ -1,39 +1,28 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import BaseColorBrick from '/textures/bricks/Brick_Wall_019_basecolor.jpg';
-import AmbientOcclusionBrick from './textures/bricks/Brick_Wall_019_ambientOcclusion.jpg';
-import HeightBrick from './textures/bricks/Brick_Wall_019_height.png';
-import NormalBrick from './textures/bricks/Brick_Wall_019_normal.jpg';
-import RoughnessBrick from './textures/bricks/Brick_Wall_019_roughness.jpg';
+import px from './textures/cubemap/px.png';
+import nx from './textures/cubemap/nx.png';
+import py from './textures/cubemap/py.png';
+import ny from './textures/cubemap/ny.png';
+import pz from './textures/cubemap/pz.png';
+import nz from './textures/cubemap/nz.png';
 
-// ----- 주제: MeshStandardMaterial 효과 주기(다양한 텍스쳐 적용)
+// ----- 주제: Skybox and EnvMap
+// 메시를 둘러싸는 배경(scene에 적용)
 
 export default function example() {
   // 텍스터 이미지 로드
-  const loadingManager = new THREE.LoadingManager();
+  const cubeTextureLoader = new THREE.CubeTextureLoader();
 
-  loadingManager.onStart = () => {
-    console.log('로드 시작');
-  };
-
-  loadingManager.onProgress = (img) => {
-    console.log(img + ' 로드');
-  };
-
-  loadingManager.onLoad = () => {
-    console.log('로드완료');
-  };
-
-  loadingManager.onError = () => {
-    console.log('에러');
-  };
-
-  const textureLoader = new THREE.TextureLoader(loadingManager);
-  const baseColorTex = textureLoader.load(BaseColorBrick);
-  const ambientOcclusionBrickTex = textureLoader.load(AmbientOcclusionBrick);
-  const heightBrickTex = textureLoader.load(HeightBrick);
-  const normalBrickTex = textureLoader.load(NormalBrick);
-  const roughnessBrickTex = textureLoader.load(RoughnessBrick);
+  const cubeTexture = cubeTextureLoader.load([
+    // + - 순서
+    px,
+    nx,
+    py,
+    ny,
+    pz,
+    nz,
+  ]);
 
   // Renderer
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -46,7 +35,9 @@ export default function example() {
 
   // Scene
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('white');
+  // scene.background = new THREE.Color('white');
+
+  scene.background = cubeTexture;
 
   // Camera
   const camera = new THREE.PerspectiveCamera(
@@ -72,18 +63,15 @@ export default function example() {
   // controls.autoRotate = true;
 
   // Mesh
-  const geometry = new THREE.BoxGeometry(3, 3, 3);
+  const geometry = new THREE.BoxGeometry(1, 1, 1);
 
-  const material = new THREE.MeshStandardMaterial({
+  // const material = new THREE.MeshStandardMaterial({
+  const material = new THREE.MeshBasicMaterial({
     side: THREE.DoubleSide,
-    map: baseColorTex,
-    roughness: 0.3,
-    metalness: 0.3,
-    normalMap: normalBrickTex, // 입체감을 주는 텍스쳐
-    roughnessMap: roughnessBrickTex, // 거칠기 표현해주는 텍스쳐
-    aoMap: ambientOcclusionBrickTex, // 그림자를 좀더 진하게 표현
-    aoMapIntensity: 1,
-    color: 'red',
+    // metalness: 2,
+    // roughness: 0.1,
+    color: 'gold',
+    envMap: cubeTexture,
   });
 
   const mesh1 = new THREE.Mesh(geometry, material);
