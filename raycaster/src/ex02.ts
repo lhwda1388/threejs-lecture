@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Vector2 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import PreventDragClick from './PreventDragClick';
+import MousePosClick from './MousePosClick';
 
 // ----- 주제: 클릭한 메시 선택
 
@@ -65,9 +66,6 @@ export default function example() {
 
   const raycaster = new THREE.Raycaster();
 
-  const mouse = new THREE.Vector2();
-  console.log(mouse);
-
   // 그리기
   const clock = new THREE.Clock();
 
@@ -87,7 +85,7 @@ export default function example() {
   function checkIntersects() {
     if (preventDragClick.mouseMoved) return;
     // origin을 카메라로부터
-    raycaster.setFromCamera(mouse, camera);
+    raycaster.setFromCamera(mousePosClick.pos, camera);
 
     const intersects = raycaster.intersectObjects(meshes);
 
@@ -109,15 +107,8 @@ export default function example() {
   // 이벤트
   window.addEventListener('resize', setSize);
 
-  // 클릭이벤트
-  canvas.addEventListener('click', (e) => {
-    const { x: canvasX, y: canvasY } = canvas.getBoundingClientRect();
-    // 캔버스의 좌표를 three좌표로 변환한다.
-    mouse.x = ((e.clientX - canvasX) / canvas.clientWidth) * 2 - 1;
-    mouse.y = -(((e.clientY - canvasY) / canvas.clientHeight) * 2 - 1);
-
-    checkIntersects();
-  });
   const preventDragClick = new PreventDragClick(canvas);
+  const mousePosClick = new MousePosClick(canvas);
+  mousePosClick.afterClickEvent = checkIntersects;
   draw();
 }
