@@ -1,7 +1,9 @@
 import * as THREE from 'three';
+import { Vector2 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import PreventDragClick from './PreventDragClick';
 
-// ----- 주제: 특정 방향의 광선(Ray)에 맞은 Mesh 판별
+// ----- 주제: 클릭한 메시 선택
 
 export default function example() {
   // Renderer
@@ -23,7 +25,7 @@ export default function example() {
     0.1,
     1000,
   );
-  camera.position.x = 1;
+  // camera.position.x = 1;
   camera.position.y = 1.5;
   camera.position.z = 4;
   scene.add(camera);
@@ -37,19 +39,15 @@ export default function example() {
   directionalLight.position.z = 2;
   scene.add(directionalLight);
 
+  // Helper
+  const axesHelper = new THREE.AxesHelper(5);
+  scene.add(axesHelper);
+
   // Controls
 
   const controls = new OrbitControls(camera, renderer.domElement);
 
   // Mesh
-  const lineMaterial = new THREE.LineBasicMaterial({ color: 'yellow' });
-  const points: THREE.Vector3[] = [];
-  points.push(new THREE.Vector3(0, 0, 100));
-  points.push(new THREE.Vector3(0, 0, -100));
-  const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-  const guide = new THREE.Line(lineGeometry, lineMaterial);
-
-  scene.add(guide);
 
   const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
   const boxMaterial = new THREE.MeshStandardMaterial({ color: 'plum' });
@@ -67,33 +65,38 @@ export default function example() {
 
   const raycaster = new THREE.Raycaster();
 
+  const mouse = new THREE.Vector2();
+  console.log(mouse);
+
   // 그리기
   const clock = new THREE.Clock();
 
   function draw() {
     const time = clock.getElapsedTime();
 
-    boxMesh.position.y = Math.sin(time) * 2;
-    toursMesh.position.y = Math.cos(time) * 2;
-    boxMesh.material.color.set('plum');
-    toursMesh.material.color.set('lime');
-
-    // 광선을 쏘는 출발점
-    // 위에 만들어놓은 노란선과 똑같이 맞춰줌
-    const origin = new THREE.Vector3(0, 0, 100);
-    // 방향(단위벡터)
-    const direction = new THREE.Vector3(0, 0, -100);
-    direction.normalize(); // 정규화
-    raycaster.set(origin, direction);
-
-    const intersects = raycaster.intersectObjects(meshes);
-    intersects.forEach((item) => {
-      (item.object as any)?.material?.color.set('red');
-    });
+    // boxMesh.position.y = Math.sin(time) * 2;
+    // toursMesh.position.y = Math.cos(time) * 2;
+    // boxMesh.material.color.set('plum');
+    // toursMesh.material.color.set('lime');
 
     controls.update();
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);
+  }
+
+  function checkIntersects() {
+    if (preventDragClick.mouseMoved) return;
+    // origin을 카메라로부터
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(meshes);
+
+    for (const item of intersects) {
+      console.log(item.object.name);
+
+      (item.object as any)?.material?.color.set('red');
+      break;
+    }
   }
 
   function setSize() {
@@ -106,5 +109,15 @@ export default function example() {
   // 이벤트
   window.addEventListener('resize', setSize);
 
+  // 클릭이벤트
+  canvas.addEventListener('click', (e) => {
+    const { x: canvasX, y: canvasY } = canvas.getBoundingClientRect();
+    // 캔버스의 좌표를 three좌표로 변환한다.
+    mouse.x = ((e.clientX - canvasX) / canvas.clientWidth) * 2 - 1;
+    mouse.y = -(((e.clientY - canvasY) / canvas.clientHeight) * 2 - 1);
+
+    checkIntersects();
+  });
+  const preventDragClick = new PreventDragClick(canvas);
   draw();
 }
