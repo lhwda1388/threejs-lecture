@@ -17,6 +17,11 @@ declare module '*.glb' {
   export default source;
 }
 
+declare module '*.gltf' {
+  const source: string;
+  export default source;
+}
+
 declare global {
   interface Window {
     clientWidth: number;
