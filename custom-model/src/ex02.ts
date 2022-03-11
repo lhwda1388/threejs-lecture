@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import GLB from './models/hue.glb';
 
-// ----- 주제: glb 파일 불러오기
+// ----- 주제: 애니메이션
 
 export default function example() {
   // Renderer
@@ -40,17 +40,31 @@ export default function example() {
   directionalLight.position.z = 2;
   directionalLight.castShadow = true;
   scene.add(directionalLight);
+  // Helper
+  const axesHelper = new THREE.AxesHelper();
+  scene.add(axesHelper);
 
   // Controls
   const controls = new OrbitControls(camera, renderer.domElement);
 
   // gltf loader
+  let mixer: THREE.AnimationMixer | null = null;
   const gltfLoader = new GLTFLoader();
   gltfLoader.load(GLB, (gltf) => {
-    console.log(gltf.scene.children[0]);
     const mesh = gltf.scene.children[0];
     mesh.receiveShadow = true;
     scene.add(mesh);
+
+    mixer = new THREE.AnimationMixer(mesh);
+    const actions = [];
+    actions[0] = mixer.clipAction(gltf.animations[0]);
+    actions[1] = mixer.clipAction(gltf.animations[1]);
+
+    actions[0].repetitions = 2; // 반복횟수
+    // actions[0].clampWhenFinished = true; // 애니메이션을 시작함 액션으로 멈추게함
+    actions[0].play();
+
+    console.log(mixer);
   });
 
   // 그리기
@@ -58,7 +72,8 @@ export default function example() {
 
   function draw() {
     const delta = clock.getDelta();
-
+    controls.update();
+    mixer?.update(delta);
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);
   }
