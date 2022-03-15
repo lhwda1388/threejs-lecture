@@ -25,8 +25,10 @@ export default class Domino {
   private _rotationY: number;
   private _gltfLoader: GLTFLoader;
   private _modelMesh?: Object3D;
+  private _modelMeshIndex?: number;
 
   constructor({
+    index,
     scene,
     cannonWorld,
     x = 0,
@@ -38,6 +40,7 @@ export default class Domino {
     rotationY = 0,
     gltfLoader,
   }: {
+    index: number;
     scene: THREE.Scene;
     cannonWorld: World;
     x?: number;
@@ -62,6 +65,8 @@ export default class Domino {
 
     this._gltfLoader.load(DominoGLB, (gltf) => {
       this._modelMesh = gltf.scene.children[0];
+      this._modelMeshIndex = index;
+      this._modelMesh.name = `${this._modelMeshIndex}번 도미노`;
       this._modelMesh.castShadow = true;
       this._modelMesh.position.set(this._x, this._y, this._z);
       this._scene.add(this._modelMesh);

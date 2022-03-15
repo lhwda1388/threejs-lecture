@@ -4,6 +4,7 @@ import * as CANNON from 'cannon-es';
 import PreventDragClick from './PreventDragClick';
 import Domino from './Domino';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import MousePosClick from './MousePosClick';
 
 // ----- 주제: 오브젝트 제거
 
@@ -123,7 +124,13 @@ export default function example() {
   const gltfLoader = new GLTFLoader();
 
   for (let i = -3; i < 17; i++) {
-    const domino = new Domino({ scene, cannonWorld, z: -i * 0.8, gltfLoader });
+    const domino = new Domino({
+      index: i,
+      scene,
+      cannonWorld,
+      z: -i * 0.8,
+      gltfLoader,
+    });
 
     dominos.push(domino);
   }
@@ -152,13 +159,23 @@ export default function example() {
     renderer.render(scene, camera);
   }
 
+  // Raycaster
+  const raycater = new THREE.Raycaster();
+  const checkIntersects = () => {
+    raycater.setFromCamera(mousePosClick.pos, camera);
+
+    const intersects = raycater.intersectObjects(scene.children);
+    console.log(intersects[0].object.name);
+    if (intersects[0]) {
+      console.log('test');
+    }
+  };
+
   // 이벤트
   window.addEventListener('resize', setSize);
-  canvas.addEventListener('click', () => {
-    console.log('click');
-  });
 
   const preventDragClick = new PreventDragClick(canvas);
-
+  const mousePosClick = new MousePosClick(canvas);
+  mousePosClick.afterClickEvent = checkIntersects;
   draw();
 }
