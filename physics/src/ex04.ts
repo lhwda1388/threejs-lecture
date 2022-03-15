@@ -134,10 +134,7 @@ export default function example() {
     if (delta < 0.01) cannonStepTime = 1 / 120;
     cannonWorld.step(cannonStepTime, delta, 3);
 
-    spheres.forEach((item) => {
-      item.mesh.position.copy(item.cannonBody?.position as any);
-      item.mesh.quaternion.copy(item.cannonBody?.quaternion as any);
-    });
+    spheres.forEach((item) => item.draw());
 
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);

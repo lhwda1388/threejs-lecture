@@ -54,6 +54,11 @@ export default class MySphere {
     return this._mesh;
   }
 
+  draw() {
+    this._mesh.position.copy(this._cannonBody?.position as any);
+    this._mesh.quaternion.copy(this._cannonBody?.quaternion as any);
+  }
+
   addMesh() {
     this._mesh.position.set(this._x, this._y, this._z);
     this._mesh.scale.set(this._scale, this._scale, this._scale);
