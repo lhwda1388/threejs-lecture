@@ -7,7 +7,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import MousePosClick from './MousePosClick';
 import { Body } from 'cannon-es';
 
-// ----- 주제: 오브젝트 제거
+// ----- 주제: 도미노 물리엔진 처리
 
 export default function example() {
   // Renderer
@@ -174,8 +174,16 @@ export default function example() {
     for (const item of intersects) {
       if (item.object?.cannonBody) {
         const { x, y, z } = item.object.position;
+
+        const cameraDirection = new THREE.Vector3(
+          camera.position.x,
+          camera.position.y,
+          camera.position.z,
+        );
+        cameraDirection.normalize();
+        console.log(cameraDirection);
         item.object?.cannonBody?.applyForce(
-          new CANNON.Vec3(0, 0, -100),
+          new CANNON.Vec3(0, 0, -cameraDirection.z * 100),
           new CANNON.Vec3(x, y, z),
         );
       }
