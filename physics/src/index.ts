@@ -1,4 +1,4 @@
 import './index.scss';
-import ex from './ex04';
+import ex from './ex05';
 
 ex();
