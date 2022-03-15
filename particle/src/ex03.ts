@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import Start from './images/star.png';
 
-// ----- 주제: 랜덤 파티클
+// ----- 주제: 파티클 이미지
 
 export default function example() {
   // Renderer
@@ -42,7 +43,7 @@ export default function example() {
 
   // Mesh
   const geometry = new THREE.BufferGeometry();
-  const count = 1000000;
+  const count = 100000;
   const positions = new Float32Array(count * 3); // x,y,z
   for (let i = 0; i < positions.length; i++) {
     positions[i] = (Math.random() - 0.5) * 10; // -5 ~ +5
@@ -50,11 +51,19 @@ export default function example() {
 
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
+  const textureLoader = new THREE.TextureLoader();
+  const particleTexture = textureLoader.load(Start);
+
   const material = new THREE.PointsMaterial({
-    size: 0.01,
+    size: 0.03,
     color: '#fce4ec',
     // size: 1,
     // sizeAttenuation: true, // 원근
+    map: particleTexture,
+    // 투명도 처리
+    transparent: true,
+    alphaMap: particleTexture,
+    depthWrite: false,
   });
   const particles = new THREE.Points(geometry, material);
   scene.add(particles);

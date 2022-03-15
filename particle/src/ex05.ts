@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import Start from './images/star.png';
 
-// ----- 주제: 랜덤 파티클
+// ----- 주제: Point 좌표에 Mesh 생성
 
 export default function example() {
   // Renderer
@@ -41,23 +42,28 @@ export default function example() {
   controls.enableDamping = true;
 
   // Mesh
-  const geometry = new THREE.BufferGeometry();
-  const count = 1000000;
-  const positions = new Float32Array(count * 3); // x,y,z
-  for (let i = 0; i < positions.length; i++) {
-    positions[i] = (Math.random() - 0.5) * 10; // -5 ~ +5
+  const planeMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.3, 0.3),
+    new THREE.MeshBasicMaterial({
+      color: 'tomato',
+      side: THREE.DoubleSide,
+    }),
+  );
+
+  // Points
+  const sphereGeometry = new THREE.SphereGeometry(1, 8, 8);
+  const positionArray = sphereGeometry.getAttribute('position').array;
+
+  // 여러개의 plane mesh
+  for (let i = 0; i < positionArray.length; i += 3) {
+    const plane = planeMesh.clone();
+    plane.position.x = positionArray[i];
+    plane.position.y = positionArray[i + 1];
+    plane.position.z = positionArray[i + 2];
+
+    plane.lookAt(0, 0, 0);
+    scene.add(plane);
   }
-
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-  const material = new THREE.PointsMaterial({
-    size: 0.01,
-    color: '#fce4ec',
-    // size: 1,
-    // sizeAttenuation: true, // 원근
-  });
-  const particles = new THREE.Points(geometry, material);
-  scene.add(particles);
 
   // 그리기
   const clock = new THREE.Clock();
