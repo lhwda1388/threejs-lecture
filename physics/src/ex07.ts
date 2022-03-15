@@ -5,6 +5,7 @@ import PreventDragClick from './PreventDragClick';
 import Domino from './Domino';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import MousePosClick from './MousePosClick';
+import { Body } from 'cannon-es';
 
 // ----- 주제: 오브젝트 제거
 
@@ -67,8 +68,8 @@ export default function example() {
     defaultMaterial,
     defaultMaterial,
     {
-      friction: 0.5, // 마찰
-      restitution: 0.3, // 반발
+      friction: 0.01, // 마찰
+      restitution: 0.9, // 반발
     },
   );
 
@@ -162,12 +163,23 @@ export default function example() {
   // Raycaster
   const raycater = new THREE.Raycaster();
   const checkIntersects = () => {
+    if (preventDragClick.mouseMoved) return;
     raycater.setFromCamera(mousePosClick.pos, camera);
 
-    const intersects = raycater.intersectObjects(scene.children);
-    console.log(intersects[0].object.name);
-    if (intersects[0]) {
-      console.log('test');
+    const intersects = raycater.intersectObjects<
+      THREE.Object3D & {
+        cannonBody?: Body;
+      }
+    >(scene.children);
+    for (const item of intersects) {
+      if (item.object?.cannonBody) {
+        const { x, y, z } = item.object.position;
+        item.object?.cannonBody?.applyForce(
+          new CANNON.Vec3(0, 0, -100),
+          new CANNON.Vec3(x, y, z),
+        );
+      }
+      break;
     }
   };
 

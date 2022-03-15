@@ -24,7 +24,7 @@ export default class Domino {
   private _depth: number;
   private _rotationY: number;
   private _gltfLoader: GLTFLoader;
-  private _modelMesh?: Object3D;
+  private _modelMesh?: Object3D & { cannonBody?: Body };
   private _modelMeshIndex?: number;
 
   constructor({
@@ -96,6 +96,8 @@ export default class Domino {
       new Vec3(0, 1, 0), // y축
       this._rotationY,
     );
+
+    if (this._modelMesh) this._modelMesh.cannonBody = this._cannonBody;
 
     this._cannonWorld.addBody(this._cannonBody);
   }
