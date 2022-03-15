@@ -59,6 +59,11 @@ export default class MySphere {
     this._mesh.quaternion.copy(this._cannonBody?.quaternion as any);
   }
 
+  remove() {
+    this._cannonWorld.removeBody(this._cannonBody as Body);
+    this._scene.remove(this._mesh);
+  }
+
   addMesh() {
     this._mesh.position.set(this._x, this._y, this._z);
     this._mesh.scale.set(this._scale, this._scale, this._scale);
