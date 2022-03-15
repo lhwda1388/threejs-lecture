@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: 기본 Geometry 파티클
+// ----- 주제: 랜덤 파티클
 
 export default function example() {
   // Renderer
@@ -41,14 +41,23 @@ export default function example() {
   controls.enableDamping = true;
 
   // Mesh
-  const geometry = new THREE.SphereGeometry(1, 32, 32);
+  const geometry = new THREE.BufferGeometry();
+  const count = 10000;
+  const positions = new Float32Array(count * 3); // x,y,z
+  for (let i = 0; i < positions.length; i++) {
+    positions[i] = (Math.random() - 0.5) * 10; // -5 ~ +5
+  }
+
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
   const material = new THREE.PointsMaterial({
-    size: 0.02,
+    size: 0.01,
+    color: 'plum',
     // size: 1,
     // sizeAttenuation: true, // 원근
   });
-  const points = new THREE.Points(geometry, material);
-  scene.add(points);
+  const particles = new THREE.Points(geometry, material);
+  scene.add(particles);
 
   // 그리기
   const clock = new THREE.Clock();
