@@ -173,8 +173,12 @@ export default function example() {
     >(scene.children);
     for (const item of intersects) {
       if (item.object?.cannonBody) {
-        const { x, y, z } = item.object.position;
-
+        const meshDirection = new THREE.Vector3(
+          item.object.position.x,
+          item.object.position.y,
+          item.object.position.z,
+        );
+        meshDirection.normalize();
         const cameraDirection = new THREE.Vector3(
           camera.position.x,
           camera.position.y,
@@ -184,7 +188,7 @@ export default function example() {
         console.log(cameraDirection);
         item.object?.cannonBody?.applyForce(
           new CANNON.Vec3(0, 0, -cameraDirection.z * 100),
-          new CANNON.Vec3(x, y, z),
+          new CANNON.Vec3(meshDirection.x, meshDirection.y, meshDirection.z),
         );
       }
       break;
