@@ -6,6 +6,7 @@ import Image02 from './images/02.jpg';
 import Image03 from './images/03.jpg';
 import Image04 from './images/04.jpg';
 import Image05 from './images/05.jpg';
+import gsap from 'gsap';
 
 // ----- 주제: 형태변환 이미지 패널
 
@@ -61,20 +62,27 @@ export default function example() {
   const textureLoader = new THREE.TextureLoader();
 
   const sphereGeometry = new THREE.SphereGeometry(1, 8, 8);
-  const positionArray = sphereGeometry.getAttribute('position').array;
+  const spherePositionArray = sphereGeometry.getAttribute('position')
+    .array as number[];
+  const randomPositionArray: number[] = [];
+  for (let i = 0; i < spherePositionArray.length; i++) {
+    randomPositionArray.push((Math.random() - 0.5) * 10); // -5 ~ 5
+  }
 
   // 여러개의 plane mesh
-  for (let i = 0; i < positionArray.length; i += 3) {
+  const imagePanels: ImagePanel[] = [];
+  for (let i = 0; i < spherePositionArray.length; i += 3) {
     const imageSrc = Images[`Image0${Math.ceil(Math.random() * 5)}`];
     const imagePanel = new ImagePanel({
       scene,
       textureLoader,
       geometry: planeGeometry,
       imageSrc,
-      x: positionArray[i],
-      y: positionArray[i + 1],
-      z: positionArray[i + 2],
+      x: spherePositionArray[i],
+      y: spherePositionArray[i + 1],
+      z: spherePositionArray[i + 2],
     });
+    imagePanels.push(imagePanel);
   }
 
   // 그리기
@@ -95,9 +103,64 @@ export default function example() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
   }
+  const setShape = (e: MouseEvent) => {
+    let array: number[] = [];
+    const type = (e?.target as any).dataset.type;
+    switch (type) {
+      case 'random':
+        array = randomPositionArray;
+        break;
+      case 'sphere':
+        array = spherePositionArray;
+        break;
+    }
+    for (let i = 0; i < imagePanels.length; i++) {
+      // 위치이동
+      gsap.to(imagePanels?.[i]?.mesh?.position, {
+        duration: 1,
+        x: array[i * 3],
+        y: array[i * 3 + 1],
+        z: array[i * 3 + 2],
+      });
 
+      // 회전
+      if (type === 'random') {
+        gsap.to(imagePanels?.[i]?.mesh?.rotation, {
+          duration: 1,
+          x: 0,
+          y: 0,
+          z: 0,
+        });
+      } else {
+        gsap.to(imagePanels?.[i]?.mesh?.rotation, {
+          duration: 1,
+          x: imagePanels?.[i].sphereRotationX,
+          y: imagePanels?.[i].sphereRotationY,
+          z: imagePanels?.[i].sphereRotationZ,
+        });
+      }
+    }
+  };
   // 이벤트
   window.addEventListener('resize', setSize);
+
+  const btnWrapper = document.createElement('div');
+  btnWrapper.classList.add('btns');
+
+  const randomButton = document.createElement('button');
+  randomButton.dataset.type = 'random';
+  randomButton.style.cssText = 'position: absolute; top: 20px; left: 20px;';
+  randomButton.textContent = 'Random';
+  btnWrapper.appendChild(randomButton);
+
+  const sphereButton = document.createElement('button');
+  sphereButton.dataset.type = 'sphere';
+  sphereButton.style.cssText = 'position: absolute; top: 50px; left: 20px;';
+  sphereButton.textContent = 'Sphere';
+  btnWrapper.appendChild(sphereButton);
+  document.body.appendChild(btnWrapper);
+
+  btnWrapper.addEventListener('click', setShape);
 
   draw();
 }
