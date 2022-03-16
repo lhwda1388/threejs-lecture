@@ -1,4 +1,4 @@
-# Camera Control Example
+# Material Example
 
 ## Env
 
