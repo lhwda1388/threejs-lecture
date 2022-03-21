@@ -73,6 +73,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 // 물체 만들기
 const glassUnitSize = 1.2;
+const glassCount = 10;
 
 // 바닥
 const floor = new Floor({
@@ -124,12 +125,12 @@ for (let i = 0; i < 49; i++) {
   new SideLight({
     name: 'sideLight',
     container: bar1.mesh,
-    z: i * 0.5 - glassUnitSize * 10,
+    z: i * 0.5 - glassUnitSize * glassCount,
   });
   new SideLight({
     name: 'sideLight',
     container: bar4.mesh,
-    z: i * 0.5 - glassUnitSize * 10,
+    z: i * 0.5 - glassUnitSize * glassCount,
   });
 }
 
