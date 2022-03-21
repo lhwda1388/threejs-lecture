@@ -2,6 +2,9 @@ import { cm1, cm2 } from './common';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Pillar from './Pillar';
+import Floor from './Floor';
+import Bar from './Bar';
+import SideLight from './SideLight';
 
 // ----- 주제: The Bridge 게임 만들기
 
@@ -68,16 +71,67 @@ cm1.scene.add(spotLight1, spotLight2, spotLight3, spotLight4);
 // Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+// 물체 만들기
+const glassUnitSize = 1.2;
 
 // 바닥
+const floor = new Floor({
+  name: 'floor',
+});
 
 // 기둥
-new Pillar({
+const pillar1 = new Pillar({
   name: 'pillar',
   x: 0,
-  y: 5,
-  z: -1.2 * 12 - 0.6,
+  y: 5.5,
+  z: -glassUnitSize * 12 - glassUnitSize / 2,
 });
+
+const pillar2 = new Pillar({
+  name: 'pillar2',
+  x: 0,
+  y: 5.5,
+  z: glassUnitSize * 12 + glassUnitSize / 2,
+});
+
+// 바
+const bar1 = new Bar({
+  name: 'bar',
+  x: -1.6,
+  y: 10.3,
+  z: 0,
+});
+const bar2 = new Bar({
+  name: 'bar',
+  x: -0.4,
+  y: 10.3,
+  z: 0,
+});
+const bar3 = new Bar({
+  name: 'bar',
+  x: 0.4,
+  y: 10.3,
+  z: 0,
+});
+const bar4 = new Bar({
+  name: 'bar',
+  x: 1.6,
+  y: 10.3,
+  z: 0,
+});
+
+for (let i = 0; i < 49; i++) {
+  new SideLight({
+    name: 'sideLight',
+    container: bar1.mesh,
+    z: i * 0.5 - glassUnitSize * 10,
+  });
+  new SideLight({
+    name: 'sideLight',
+    container: bar4.mesh,
+    z: i * 0.5 - glassUnitSize * 10,
+  });
+}
 
 // 그리기
 const clock = new THREE.Clock();

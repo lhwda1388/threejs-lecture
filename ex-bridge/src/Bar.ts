@@ -3,14 +3,13 @@ import Stuff from './Stuff';
 import { StuffOptions } from './Stuff';
 import { cm1, geo, mat } from './common';
 
-type PillarOptions = StuffOptions;
+type BarOptions = StuffOptions;
 
-class Pillar extends Stuff {
-  constructor(options: PillarOptions) {
+class Bar extends Stuff {
+  constructor(options: BarOptions) {
     super(options);
-    this._geometry = geo.pillar;
-    this._material = mat.pillar;
-
+    this._geometry = geo.bar;
+    this._material = mat.bar;
     this.addMesh();
     if (this._mesh) {
       this._mesh.castShadow = true;
@@ -19,4 +18,4 @@ class Pillar extends Stuff {
   }
 }
 
-export default Pillar;
+export default Bar;
