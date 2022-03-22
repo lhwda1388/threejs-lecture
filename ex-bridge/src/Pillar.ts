@@ -5,7 +5,7 @@ import { cm1, geo, mat } from './common';
 
 type PillarOptions = StuffOptions;
 
-class Pillar extends Stuff {
+class Pillar extends Stuff<PillarOptions> {
   constructor(options: PillarOptions) {
     super(options);
     this._geometry = geo.pillar;

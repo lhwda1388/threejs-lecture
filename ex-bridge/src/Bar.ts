@@ -1,11 +1,10 @@
-import { Mesh } from 'three';
 import Stuff from './Stuff';
 import { StuffOptions } from './Stuff';
-import { cm1, geo, mat } from './common';
+import { geo, mat } from './common';
 
 type BarOptions = StuffOptions;
 
-class Bar extends Stuff {
+class Bar extends Stuff<BarOptions> {
   constructor(options: BarOptions) {
     super(options);
     this._geometry = geo.bar;

@@ -11,8 +11,8 @@ export interface StuffOptions {
   rotationZ?: number;
 }
 
-class Stuff {
-  protected _options: StuffOptions;
+class Stuff<T extends StuffOptions> {
+  protected _options: T;
   protected _geometry?: THREE.BufferGeometry;
   protected _material?: THREE.Material;
   protected _mesh?: THREE.Mesh;
@@ -26,7 +26,7 @@ class Stuff {
     rotationY = 0,
     rotationZ = 0,
     ...options
-  }: StuffOptions) {
+  }) {
     this._options = {
       name,
       x,
@@ -36,7 +36,7 @@ class Stuff {
       rotationY,
       rotationZ,
       ...options,
-    };
+    } as unknown as T;
   }
 
   get mesh() {

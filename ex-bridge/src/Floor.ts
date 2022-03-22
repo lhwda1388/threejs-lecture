@@ -5,7 +5,7 @@ import { cm1, geo, mat } from './common';
 
 type FloorOptions = StuffOptions;
 
-class Floor extends Stuff {
+class Floor extends Stuff<FloorOptions> {
   constructor(options: FloorOptions) {
     super(options);
     this._geometry = geo.floor;
