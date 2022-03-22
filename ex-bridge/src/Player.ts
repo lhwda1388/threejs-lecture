@@ -13,16 +13,23 @@ import {
 
 type PlayerOptions = StuffOptions;
 
-class Player extends Stuff<PlayerOptions> {
+class Player extends Stuff<PlayerOptions, BoxGeometry> {
   private _actions: AnimationAction[] = Array.from({ length: 3 });
   private _mixer?: AnimationMixer;
-  private _modelMesh?: Object3D & { animations: AnimationClip[] };
 
   constructor(options: PlayerOptions) {
     super(options);
 
+    this._options.width = 0.5;
+    this._options.height = 0.5;
+    this._options.depth = 0.5;
+
     this._mesh = new Mesh(
-      new BoxGeometry(0.5, 0.5, 0.5),
+      new BoxGeometry(
+        this._options.width,
+        this._options.height,
+        this._options.depth,
+      ),
       new MeshBasicMaterial({
         transparent: true,
         opacity: 0,
@@ -63,6 +70,7 @@ class Player extends Stuff<PlayerOptions> {
       this._actions[0].play(); // default
 
       cm1.scene.add(this._modelMesh);
+      this.setCannonBody();
     });
   }
 

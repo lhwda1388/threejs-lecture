@@ -1,3 +1,4 @@
+import { Material, World } from 'cannon-es';
 import {
   AnimationMixer,
   BoxGeometry,
@@ -8,9 +9,14 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export const cm1 = {
-  canvas: document.getElementById('canvas') as HTMLCanvasElement,
   scene: new Scene(),
   gltfLoader: new GLTFLoader(),
+
+  //cannon
+  world: new World(),
+  defaultMaterial: new Material('default'),
+  glassMaterial: new Material('glass'),
+  playerMaterial: new Material('player'),
 };
 
 export const cm2 = {

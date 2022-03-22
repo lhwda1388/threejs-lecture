@@ -1,5 +1,14 @@
-import { AnimationClip, BufferGeometry, Material, Mesh, Object3D } from 'three';
+import {
+  AnimationClip,
+  BufferGeometry,
+  Material,
+  Mesh,
+  Object3D,
+  Quaternion,
+  Vector3,
+} from 'three';
 import { cm1 } from './common';
+import { Material as CannonMaterial, Box, Vec3, Body } from 'cannon-es';
 
 export interface StuffOptions {
   name: string;
@@ -9,13 +18,20 @@ export interface StuffOptions {
   rotationX?: number;
   rotationY?: number;
   rotationZ?: number;
+  width?: number;
+  height?: number;
+  depth?: number;
+  cannonMaterial?: CannonMaterial;
+  mass?: number;
 }
 
-class Stuff<T extends StuffOptions> {
+class Stuff<T extends StuffOptions, G extends BufferGeometry> {
   protected _options: T;
-  protected _geometry?: BufferGeometry;
+  protected _geometry?: G;
   protected _material?: Material;
   protected _mesh?: Mesh | (Object3D & { animations: AnimationClip[] });
+  protected _modelMesh?: Object3D & { animations: AnimationClip[] };
+  protected _cannonBody?: Body;
 
   constructor({
     name = '',
@@ -25,6 +41,11 @@ class Stuff<T extends StuffOptions> {
     rotationX = 0,
     rotationY = 0,
     rotationZ = 0,
+    width = 1,
+    height = 1,
+    depth = 1,
+    cannonMaterial = cm1.defaultMaterial,
+    mass = 0,
     ...options
   }: T) {
     this._options = {
@@ -35,12 +56,21 @@ class Stuff<T extends StuffOptions> {
       rotationX,
       rotationY,
       rotationZ,
+      width,
+      height,
+      depth,
+      cannonMaterial,
+      mass,
       ...options,
     } as T;
   }
 
   get mesh() {
     return this._mesh as Mesh;
+  }
+
+  get modelMesh() {
+    return this._modelMesh as Mesh;
   }
 
   get position() {
@@ -51,7 +81,12 @@ class Stuff<T extends StuffOptions> {
     };
   }
 
-  addMesh() {
+  get name() {
+    return this._options.name;
+  }
+
+  setMesh() {
+    if (!this._geometry) return;
     this._mesh = new Mesh(this._geometry, this._material);
     this._mesh?.position.set(
       this._options.x as number,
@@ -65,7 +100,47 @@ class Stuff<T extends StuffOptions> {
     );
     this._mesh.castShadow = true;
     this._mesh.receiveShadow = true;
+    this._mesh.name = this._options.name;
     cm1.scene.add(this._mesh);
+  }
+
+  setCannonBody() {
+    const material = this._options.cannonMaterial;
+    const shape = new Box(
+      new Vec3(
+        (this._options.width as number) / 2,
+        (this._options.height as number) / 2,
+        (this._options.depth as number) / 2,
+      ),
+    );
+    this._cannonBody = new Body({
+      mass: this._options.mass,
+      position: new Vec3(this._options.x, this._options.y, this._options.z),
+      shape,
+      material,
+    });
+    this._cannonBody.quaternion.setFromAxisAngle(
+      new Vec3(0, 1, 0),
+      this._options.rotationY as number,
+    );
+
+    cm1.world.addBody(this._cannonBody);
+  }
+
+  updatePosition() {
+    if (!this?._cannonBody) return;
+    this._mesh?.position.copy(
+      this?._cannonBody?.position as unknown as Vector3,
+    );
+    this._mesh?.quaternion.copy(
+      this?._cannonBody?.quaternion as unknown as Quaternion,
+    );
+    this._modelMesh?.position.copy(
+      this?._cannonBody?.position as unknown as Vector3,
+    );
+    this._modelMesh?.quaternion.copy(
+      this?._cannonBody?.quaternion as unknown as Quaternion,
+    );
   }
 }
 

@@ -1,6 +1,7 @@
 import './index.scss';
-import { cm1, cm2 } from './common';
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+import { cm1, cm2 } from './common';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Pillar from './Pillar';
 import Floor from './Floor';
@@ -8,13 +9,15 @@ import Bar from './Bar';
 import SideLight from './SideLight';
 import Glass from './Glass';
 import Player from './Player';
+import MousePosClick from './MousePosClick';
+import Stuff, { StuffOptions } from './Stuff';
 
 // ----- 주제: The Bridge 게임 만들기
 
 // Renderer
-
+const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const renderer = new THREE.WebGLRenderer({
-  canvas: cm1.canvas,
+  canvas,
   antialias: true,
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -76,9 +79,45 @@ cm1.scene.add(spotLight1, spotLight2, spotLight3, spotLight4);
 // Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+
+// 물리엔진
+cm1.world.gravity.set(0, -9.8, 0);
+
+const defaultContactMaterial = new CANNON.ContactMaterial(
+  cm1.defaultMaterial,
+  cm1.defaultMaterial,
+  {
+    friction: 0.3,
+    restitution: 0.2,
+  },
+);
+
+const glassDefaultMaterial = new CANNON.ContactMaterial(
+  cm1.glassMaterial,
+  cm1.defaultMaterial,
+  {
+    friction: 1,
+    restitution: 0,
+  },
+);
+
+const playerGlassMaterial = new CANNON.ContactMaterial(
+  cm1.playerMaterial,
+  cm1.glassMaterial,
+  {
+    friction: 1,
+    restitution: 0,
+  },
+);
+
+cm1.world.defaultContactMaterial = defaultContactMaterial;
+cm1.world.addContactMaterial(glassDefaultMaterial);
+cm1.world.addContactMaterial(playerGlassMaterial);
+
 // 물체 만들기
 const glassUnitSize = 1.2;
 const glassCount = 10;
+const objects: Stuff<StuffOptions, any>[] = [];
 
 // 바닥
 const floor = new Floor({
@@ -99,6 +138,8 @@ const pillar2 = new Pillar({
   y: 5.5,
   z: glassUnitSize * 12 + glassUnitSize / 2,
 });
+
+objects.push(pillar1, pillar2);
 
 // 바
 const bar1 = new Bar({
@@ -145,7 +186,7 @@ let glassTypeNumber = 0;
 let glassTypes: ('normal' | 'strong')[] = [];
 for (let i = 0; i < glassCount; i++) {
   glassTypeNumber = Math.round(Math.random());
-  console.log(glassTypeNumber);
+
   switch (glassTypeNumber) {
     case 0:
       glassTypes = ['normal', 'strong'];
@@ -160,6 +201,7 @@ for (let i = 0; i < glassCount; i++) {
     y: 10.5,
     z: i * glassUnitSize * 2 - glassUnitSize * (glassCount - 1),
     type: glassTypes[0],
+    cannonMaterial: cm1.glassMaterial,
   });
   const glass2 = new Glass({
     name: `glass-${glassTypes[1]}`,
@@ -167,9 +209,11 @@ for (let i = 0; i < glassCount; i++) {
     y: 10.5,
     z: i * glassUnitSize * 2 - glassUnitSize * (glassCount - 1),
     type: glassTypes[1],
+    cannonMaterial: cm1.glassMaterial,
   });
+  objects.push(glass1, glass2);
 }
-console.log(pillar2.mesh);
+
 // 플레이어
 const player = new Player({
   name: 'player',
@@ -177,7 +221,35 @@ const player = new Player({
   y: 10.8,
   z: pillar2.position.z - 2,
   rotationY: Math.PI,
+  cannonMaterial: cm1.playerMaterial,
+  mass: 30,
 });
+
+objects.push(player);
+
+// Raycaster
+
+const raycaster = new THREE.Raycaster();
+const mouse = new MousePosClick(canvas, (e) => {
+  checkIntersects();
+});
+
+const checkIntersects = () => {
+  raycaster.setFromCamera(mouse.pos, camera);
+
+  const intersects = raycaster.intersectObjects(cm1.scene.children);
+  for (const item of intersects) {
+    checkClickedObject(item.object.name);
+    break;
+  }
+};
+
+const checkClickedObject = (objectName: string) => {
+  if (objectName.indexOf('glass') !== -1) {
+    // 유리판 클릭
+  }
+};
+
 // 그리기
 const clock = new THREE.Clock();
 
@@ -186,6 +258,14 @@ function draw() {
 
   controls.update();
   player.update(delta);
+
+  cm1.world.step(1 / 60, delta, 3);
+  objects.forEach((item) => {
+    item.updatePosition();
+    if (item.name === 'player' && item.modelMesh) {
+      item.modelMesh.position.y += 0.15;
+    }
+  });
 
   renderer.render(cm1.scene, camera);
   renderer.setAnimationLoop(draw);
