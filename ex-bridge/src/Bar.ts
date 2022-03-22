@@ -10,10 +10,6 @@ class Bar extends Stuff<BarOptions> {
     this._geometry = geo.bar;
     this._material = mat.bar;
     this.addMesh();
-    if (this._mesh) {
-      this._mesh.castShadow = true;
-      this._mesh.receiveShadow = true;
-    }
   }
 }
 

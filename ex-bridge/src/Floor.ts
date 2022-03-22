@@ -10,8 +10,10 @@ class Floor extends Stuff<FloorOptions> {
     super(options);
     this._geometry = geo.floor;
     this._material = mat.floor;
+
+    this.addMesh();
     if (this._mesh) {
-      this._mesh.receiveShadow = true;
+      this._mesh.castShadow = false;
     }
   }
 }

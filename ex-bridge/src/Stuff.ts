@@ -1,4 +1,4 @@
-import { BufferGeometry, Material, Mesh } from 'three';
+import { AnimationClip, BufferGeometry, Material, Mesh, Object3D } from 'three';
 import { cm1 } from './common';
 
 export interface StuffOptions {
@@ -15,7 +15,7 @@ class Stuff<T extends StuffOptions> {
   protected _options: T;
   protected _geometry?: BufferGeometry;
   protected _material?: Material;
-  protected _mesh?: Mesh;
+  protected _mesh?: Mesh | (Object3D & { animations: AnimationClip[] });
 
   constructor({
     name = '',
@@ -43,6 +43,14 @@ class Stuff<T extends StuffOptions> {
     return this._mesh as Mesh;
   }
 
+  get position() {
+    return {
+      x: this._options.x as number,
+      y: this._options.y as number,
+      z: this._options.z as number,
+    };
+  }
+
   addMesh() {
     this._mesh = new Mesh(this._geometry, this._material);
     this._mesh?.position.set(
@@ -50,6 +58,13 @@ class Stuff<T extends StuffOptions> {
       this._options.y as number,
       this._options.z as number,
     );
+    this._mesh?.rotation.set(
+      this._options.rotationX as number,
+      this._options.rotationY as number,
+      this._options.rotationZ as number,
+    );
+    this._mesh.castShadow = true;
+    this._mesh.receiveShadow = true;
     cm1.scene.add(this._mesh);
   }
 }

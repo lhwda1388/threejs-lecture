@@ -1,3 +1,4 @@
+import './index.scss';
 import { cm1, cm2 } from './common';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -5,6 +6,8 @@ import Pillar from './Pillar';
 import Floor from './Floor';
 import Bar from './Bar';
 import SideLight from './SideLight';
+import Glass from './Glass';
+import Player from './Player';
 
 // ----- 주제: The Bridge 게임 만들기
 
@@ -42,6 +45,8 @@ const spotLightDistance = 50;
 
 const spotLight1 = new THREE.SpotLight(cm2.lightColor, 1);
 spotLight1.castShadow = true;
+spotLight1.shadow.mapSize.width = 2048;
+spotLight1.shadow.mapSize.height = 2048;
 const spotLight2 = spotLight1.clone();
 const spotLight3 = spotLight1.clone();
 const spotLight4 = spotLight1.clone();
@@ -121,6 +126,7 @@ const bar4 = new Bar({
   z: 0,
 });
 
+// 사이드 라이트
 for (let i = 0; i < 49; i++) {
   new SideLight({
     name: 'sideLight',
@@ -134,6 +140,44 @@ for (let i = 0; i < 49; i++) {
   });
 }
 
+// 유리판
+let glassTypeNumber = 0;
+let glassTypes: ('normal' | 'strong')[] = [];
+for (let i = 0; i < glassCount; i++) {
+  glassTypeNumber = Math.round(Math.random());
+  console.log(glassTypeNumber);
+  switch (glassTypeNumber) {
+    case 0:
+      glassTypes = ['normal', 'strong'];
+      break;
+    case 1:
+      glassTypes = ['strong', 'normal'];
+      break;
+  }
+  const glass1 = new Glass({
+    name: `glass-${glassTypes[0]}`,
+    x: -1,
+    y: 10.5,
+    z: i * glassUnitSize * 2 - glassUnitSize * (glassCount - 1),
+    type: glassTypes[0],
+  });
+  const glass2 = new Glass({
+    name: `glass-${glassTypes[1]}`,
+    x: 1,
+    y: 10.5,
+    z: i * glassUnitSize * 2 - glassUnitSize * (glassCount - 1),
+    type: glassTypes[1],
+  });
+}
+console.log(pillar2.mesh);
+// 플레이어
+const player = new Player({
+  name: 'player',
+  x: 0,
+  y: 10.8,
+  z: pillar2.position.z - 2,
+  rotationY: Math.PI,
+});
 // 그리기
 const clock = new THREE.Clock();
 
@@ -141,6 +185,7 @@ function draw() {
   const delta = clock.getDelta();
 
   controls.update();
+  player.update(delta);
 
   renderer.render(cm1.scene, camera);
   renderer.setAnimationLoop(draw);

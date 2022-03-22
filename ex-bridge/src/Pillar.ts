@@ -11,10 +11,6 @@ class Pillar extends Stuff<PillarOptions> {
     this._material = mat.pillar;
 
     this.addMesh();
-    if (this._mesh) {
-      this._mesh.castShadow = true;
-      this._mesh.receiveShadow = true;
-    }
   }
 }
 
