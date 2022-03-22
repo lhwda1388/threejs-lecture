@@ -1,7 +1,6 @@
-import { Mesh } from 'three';
 import Stuff from './Stuff';
 import { StuffOptions } from './Stuff';
-import { cm1, geo, mat } from './common';
+import { geo, mat } from './common';
 
 type PillarOptions = StuffOptions;
 

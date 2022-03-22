@@ -128,7 +128,7 @@ for (let i = 0; i < 49; i++) {
     z: i * 0.5 - glassUnitSize * glassCount,
   });
   new SideLight({
-    name: 'sideLight',
+    name: 'sideLight4',
     container: bar4.mesh,
     z: i * 0.5 - glassUnitSize * glassCount,
   });

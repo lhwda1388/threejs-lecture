@@ -1,4 +1,4 @@
-import { Mesh } from 'three';
+import { BufferGeometry, Material, Mesh } from 'three';
 import { cm1 } from './common';
 
 export interface StuffOptions {
@@ -13,9 +13,9 @@ export interface StuffOptions {
 
 class Stuff<T extends StuffOptions> {
   protected _options: T;
-  protected _geometry?: THREE.BufferGeometry;
-  protected _material?: THREE.Material;
-  protected _mesh?: THREE.Mesh;
+  protected _geometry?: BufferGeometry;
+  protected _material?: Material;
+  protected _mesh?: Mesh;
 
   constructor({
     name = '',
@@ -26,7 +26,7 @@ class Stuff<T extends StuffOptions> {
     rotationY = 0,
     rotationZ = 0,
     ...options
-  }) {
+  }: T) {
     this._options = {
       name,
       x,
@@ -36,11 +36,11 @@ class Stuff<T extends StuffOptions> {
       rotationY,
       rotationZ,
       ...options,
-    } as unknown as T;
+    } as T;
   }
 
   get mesh() {
-    return this._mesh as THREE.Mesh;
+    return this._mesh as Mesh;
   }
 
   addMesh() {
