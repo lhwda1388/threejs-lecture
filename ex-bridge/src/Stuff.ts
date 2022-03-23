@@ -85,6 +85,10 @@ class Stuff<T extends StuffOptions, G extends BufferGeometry> {
     return this._options.name;
   }
 
+  get cannonBody() {
+    return this._cannonBody as Body;
+  }
+
   setMesh() {
     if (!this._geometry) return;
     this._mesh = new Mesh(this._geometry, this._material);

@@ -7,10 +7,12 @@ import Pillar from './Pillar';
 import Floor from './Floor';
 import Bar from './Bar';
 import SideLight from './SideLight';
-import Glass from './Glass';
+import Glass, { GlassMesh } from './Glass';
 import Player from './Player';
 import MousePosClick from './MousePosClick';
 import Stuff, { StuffOptions } from './Stuff';
+import { Mesh } from 'three';
+import gsap from 'gsap';
 
 // ----- 주제: The Bridge 게임 만들기
 
@@ -184,6 +186,10 @@ for (let i = 0; i < 49; i++) {
 // 유리판
 let glassTypeNumber = 0;
 let glassTypes: ('normal' | 'strong')[] = [];
+const glassZ: number[] = [];
+for (let i = 0; i < glassCount; i++) {
+  glassZ.push(-(i * glassUnitSize * 2 - glassUnitSize * (glassCount - 1)));
+}
 for (let i = 0; i < glassCount; i++) {
   glassTypeNumber = Math.round(Math.random());
 
@@ -196,18 +202,20 @@ for (let i = 0; i < glassCount; i++) {
       break;
   }
   const glass1 = new Glass({
+    step: i + 1,
     name: `glass-${glassTypes[0]}`,
     x: -1,
     y: 10.5,
-    z: i * glassUnitSize * 2 - glassUnitSize * (glassCount - 1),
+    z: glassZ[i],
     type: glassTypes[0],
     cannonMaterial: cm1.glassMaterial,
   });
   const glass2 = new Glass({
+    step: i + 1,
     name: `glass-${glassTypes[1]}`,
     x: 1,
     y: 10.5,
-    z: i * glassUnitSize * 2 - glassUnitSize * (glassCount - 1),
+    z: glassZ[i],
     type: glassTypes[1],
     cannonMaterial: cm1.glassMaterial,
   });
@@ -239,14 +247,35 @@ const checkIntersects = () => {
 
   const intersects = raycaster.intersectObjects(cm1.scene.children);
   for (const item of intersects) {
-    checkClickedObject(item.object.name);
+    checkClickedObject(item.object as Mesh);
     break;
   }
 };
 
-const checkClickedObject = (objectName: string) => {
-  if (objectName.indexOf('glass') !== -1) {
+const checkClickedObject = (mesh: Mesh) => {
+  if (mesh.name.indexOf('glass') !== -1) {
     // 유리판 클릭
+    const asMesh = mesh as GlassMesh;
+    // if ((asMesh as GlassMesh).step - cm2.step === 1) {
+    cm2.step++;
+    switch (asMesh.type) {
+      case 'normal':
+        break;
+      case 'strong':
+        break;
+    }
+    gsap.to(player.cannonBody.position, {
+      duration: 1,
+      x: mesh.position.x,
+      z: mesh.position.z,
+    });
+    gsap.to(player.cannonBody.position, {
+      duration: 0.4,
+      y: 12,
+    });
+
+    console.log(cm2.step);
+    // }
   }
 };
 

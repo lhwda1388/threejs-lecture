@@ -1,22 +1,29 @@
 import Stuff from './Stuff';
 import { StuffOptions } from './Stuff';
 import { geo, mat } from './common';
-import { BoxGeometry } from 'three';
+import { BoxGeometry, Mesh } from 'three';
 
 type GlassOptions = {
-  type: 'normal' | 'strong';
+  type: GlassType;
+  step: number;
 } & StuffOptions;
 
+type GlassType = 'normal' | 'strong';
+export type GlassMesh = Mesh & { step: number; type: GlassType };
+
 class Glass extends Stuff<GlassOptions, BoxGeometry> {
+  protected _mesh?: GlassMesh;
   constructor(options: GlassOptions) {
     super(options);
     this._geometry = geo.glass;
     switch (this._options.type) {
       case 'normal':
         this._material = mat.glass1;
+        this._options.mass = 1;
         break;
       case 'strong':
         this._material = mat.glass2;
+        this._options.mass = 1000;
         break;
     }
 
@@ -26,6 +33,10 @@ class Glass extends Stuff<GlassOptions, BoxGeometry> {
 
     this.setMesh();
     this.setCannonBody();
+    if (this._mesh) {
+      this._mesh.step = this._options.step;
+      this._mesh.type = this._options.type;
+    }
   }
 }
 
