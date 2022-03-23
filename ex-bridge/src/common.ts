@@ -1,12 +1,8 @@
 import { Material, World } from 'cannon-es';
-import {
-  AnimationMixer,
-  BoxGeometry,
-  MeshPhongMaterial,
-  Scene,
-  SphereGeometry,
-} from 'three';
+import { BoxGeometry, MeshPhongMaterial, Scene, SphereGeometry } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import GlassCrashSound from './sounds/glass_crash.mp3';
+import StrongGlassCrashSound from './sounds/strong_glass_crash.mp3';
 
 export const cm1 = {
   scene: new Scene(),
@@ -59,6 +55,17 @@ export const mat = {
   glass2: new MeshPhongMaterial({
     color: cm2.glassColor,
     transparent: true,
-    opacity: 0.3,
+    opacity: 0.1,
   }),
+};
+
+const normalSound = new Audio();
+normalSound.src = GlassCrashSound;
+
+const strongSound = new Audio();
+strongSound.src = StrongGlassCrashSound;
+
+export const sounds = {
+  normal: normalSound,
+  strong: strongSound,
 };

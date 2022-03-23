@@ -1,6 +1,6 @@
 import Stuff from './Stuff';
 import { StuffOptions } from './Stuff';
-import { geo, mat } from './common';
+import { geo, mat, sounds } from './common';
 import { BoxGeometry, Mesh, MeshPhongMaterial } from 'three';
 
 type GlassOptions = {
@@ -13,9 +13,11 @@ export type GlassMesh = Mesh & { step: number; type: GlassType };
 
 class Glass extends Stuff<GlassOptions, BoxGeometry, MeshPhongMaterial> {
   protected _mesh?: GlassMesh;
+  private _sound: HTMLAudioElement;
   constructor(options: GlassOptions) {
     super(options);
     this._geometry = geo.glass;
+    this._sound = sounds[this._options.type];
     switch (this._options.type) {
       case 'normal':
         this._material = mat.glass1;
@@ -36,6 +38,16 @@ class Glass extends Stuff<GlassOptions, BoxGeometry, MeshPhongMaterial> {
     if (this._mesh) {
       this._mesh.step = this._options.step;
       this._mesh.type = this._options.type;
+    }
+
+    this._cannonBody?.addEventListener('collide', this.playground.bind(this));
+  }
+
+  playground(e: any) {
+    const velocity = e.contact.getImpactVelocityAlongNormal();
+    if (velocity > 5) {
+      this._sound.currentTime = 0;
+      this._sound.play();
     }
   }
 }

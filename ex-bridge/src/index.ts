@@ -11,8 +11,9 @@ import Glass, { GlassMesh } from './Glass';
 import Player from './Player';
 import MousePosClick from './MousePosClick';
 import Stuff, { StuffOptions } from './Stuff';
-import { Mesh, BufferGeometry, Material } from 'three';
+import { Mesh, BufferGeometry, Material, Vector3 } from 'three';
 import gsap from 'gsap';
+import PreventDragClick from './PreventDragClick';
 
 // ----- 주제: The Bridge 게임 만들기
 
@@ -40,7 +41,14 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.x = -4;
 camera.position.y = 19;
 camera.position.z = 14;
-cm1.scene.add(camera);
+
+const camera2 = camera.clone();
+camera2.position.x = 0;
+camera2.position.y = 0;
+camera2.position.z = 0;
+camera2.lookAt(0, 1, 0);
+
+cm1.scene.add(camera, camera2);
 
 // Light
 const ambientLight = new THREE.AmbientLight(cm2.lightColor, 0.8);
@@ -230,7 +238,7 @@ const player = new Player({
   name: 'player',
   x: 0,
   y: 10.8,
-  z: pillar2.position.z - 2,
+  z: pillar2.cannonBody.position.z - 2,
   rotationY: Math.PI,
   cannonMaterial: cm1.playerMaterial,
   mass: 30,
@@ -242,6 +250,7 @@ objects.push(player);
 
 const raycaster = new THREE.Raycaster();
 const mouse = new MousePosClick(canvas, (e) => {
+  if (preventDragClick.mouseMoved) return;
   checkIntersects();
 });
 
@@ -257,6 +266,7 @@ const checkIntersects = () => {
 
 let fail = false;
 let jumping = false;
+let onReplay = false;
 const checkClickedObject = (mesh: Mesh) => {
   if (mesh.name.indexOf('glass') !== -1) {
     // 유리판 클릭
@@ -266,18 +276,31 @@ const checkClickedObject = (mesh: Mesh) => {
       cm2.step++;
       player.jump();
       switch (asMesh.type) {
-        case 'normal':
-          setTimeout(() => {
+        case 'normal': {
+          const timerId = setTimeout(() => {
             fail = true;
             player.fall();
             sideLights.forEach((item) => item.turnOff());
+            const timerId2 = setTimeout(() => {
+              onReplay = true;
+              player.cannonBody.position.y = 9;
+              clearTimeout(timerId2);
+              const timerId3 = setTimeout(() => {
+                onReplay = false;
+                clearTimeout(timerId3);
+              }, 3000);
+            }, 2000);
+            clearTimeout(timerId);
           }, 700);
+
           break;
+        }
         case 'strong':
           break;
       }
       const timerId = setTimeout(() => {
         jumping = false;
+        clearTimeout(timerId);
       }, 1000);
       gsap.to(player.cannonBody.position, {
         duration: 1,
@@ -288,6 +311,22 @@ const checkClickedObject = (mesh: Mesh) => {
         duration: 0.4,
         y: 12,
       });
+      if (cm2.step === glassCount && asMesh.type === 'strong') {
+        const timerId = setTimeout(() => {
+          player.jump();
+          gsap.to(player.cannonBody.position, {
+            duration: 1,
+            x: 0,
+            z: pillar1.cannonBody.position.z,
+          });
+          gsap.to(player.cannonBody.position, {
+            duration: 0.4,
+            y: 12,
+          });
+
+          clearTimeout(timerId);
+        }, 1500);
+      }
     }
   }
 };
@@ -304,16 +343,23 @@ function draw() {
   cm1.world.step(1 / 60, delta, 3);
   objects.forEach((item) => {
     if (item.name === 'player' && item.modelMesh) {
-      item.modelMesh.position.y += 0.15;
       item.updatePosition();
       if (fail) item.updateRotation();
+      item.modelMesh.position.y += 0.15;
     } else {
       item.updatePosition();
       item.updateRotation();
     }
   });
 
-  renderer.render(cm1.scene, camera);
+  if (!onReplay) {
+    renderer.render(cm1.scene, camera);
+  } else {
+    renderer.render(cm1.scene, camera2);
+    camera2.position.z = player.cannonBody.position.z;
+    camera2.position.x = player.cannonBody.position.x;
+  }
+
   renderer.setAnimationLoop(draw);
 }
 
@@ -326,5 +372,7 @@ function setSize() {
 
 // 이벤트
 window.addEventListener('resize', setSize);
+
+const preventDragClick = new PreventDragClick(canvas);
 
 draw();

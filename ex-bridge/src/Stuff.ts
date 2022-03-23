@@ -77,14 +77,6 @@ class Stuff<
     return this._modelMesh as Mesh;
   }
 
-  get position() {
-    return {
-      x: this._options.x as number,
-      y: this._options.y as number,
-      z: this._options.z as number,
-    };
-  }
-
   get name() {
     return this._options.name;
   }
