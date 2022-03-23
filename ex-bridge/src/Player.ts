@@ -3,17 +3,18 @@ import { StuffOptions } from './Stuff';
 import { cm1 } from './common';
 
 import PlayerModel from './models/ilbuni.glb';
-import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three';
 import {
+  BoxGeometry,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhongMaterial,
   AnimationAction,
-  AnimationClip,
   AnimationMixer,
-  Object3D,
 } from 'three';
 
 type PlayerOptions = StuffOptions;
 
-class Player extends Stuff<PlayerOptions, BoxGeometry> {
+class Player extends Stuff<PlayerOptions, BoxGeometry, MeshPhongMaterial> {
   private _actions: AnimationAction[] = Array.from({ length: 3 });
   private _mixer?: AnimationMixer;
 
@@ -67,7 +68,7 @@ class Player extends Stuff<PlayerOptions, BoxGeometry> {
       this._actions[2] = this._mixer.clipAction(this._modelMesh.animations[2]); // jump
       this._actions[2].repetitions = 1; // jump
 
-      this._actions[0].play(); // default
+      this.default();
 
       cm1.scene.add(this._modelMesh);
       this.setCannonBody();
@@ -76,6 +77,19 @@ class Player extends Stuff<PlayerOptions, BoxGeometry> {
 
   get actions() {
     return this._actions;
+  }
+
+  default() {
+    this._actions[0].play();
+  }
+  fall() {
+    this._actions[0].stop();
+    this._actions[1].play();
+  }
+
+  jump() {
+    this._actions[2].stop();
+    this._actions[2].play();
   }
 
   update(time: number) {

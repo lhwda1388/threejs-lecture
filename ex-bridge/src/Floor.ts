@@ -1,11 +1,11 @@
-import { Mesh, BoxGeometry } from 'three';
+import { BoxGeometry, MeshPhongMaterial } from 'three';
 import Stuff from './Stuff';
 import { StuffOptions } from './Stuff';
-import { cm1, geo, mat } from './common';
+import { geo, mat } from './common';
 
 type FloorOptions = StuffOptions;
 
-class Floor extends Stuff<FloorOptions, BoxGeometry> {
+class Floor extends Stuff<FloorOptions, BoxGeometry, MeshPhongMaterial> {
   constructor(options: FloorOptions) {
     super(options);
     this._geometry = geo.floor;

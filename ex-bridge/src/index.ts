@@ -11,7 +11,7 @@ import Glass, { GlassMesh } from './Glass';
 import Player from './Player';
 import MousePosClick from './MousePosClick';
 import Stuff, { StuffOptions } from './Stuff';
-import { Mesh } from 'three';
+import { Mesh, BufferGeometry, Material } from 'three';
 import gsap from 'gsap';
 
 // ----- 주제: The Bridge 게임 만들기
@@ -119,7 +119,7 @@ cm1.world.addContactMaterial(playerGlassMaterial);
 // 물체 만들기
 const glassUnitSize = 1.2;
 const glassCount = 10;
-const objects: Stuff<StuffOptions, any>[] = [];
+const objects: Stuff<StuffOptions, BufferGeometry, Material>[] = [];
 
 // 바닥
 const floor = new Floor({
@@ -170,17 +170,20 @@ const bar4 = new Bar({
 });
 
 // 사이드 라이트
+const sideLights: SideLight[] = [];
 for (let i = 0; i < 49; i++) {
-  new SideLight({
-    name: 'sideLight',
-    container: bar1.mesh,
-    z: i * 0.5 - glassUnitSize * glassCount,
-  });
-  new SideLight({
-    name: 'sideLight4',
-    container: bar4.mesh,
-    z: i * 0.5 - glassUnitSize * glassCount,
-  });
+  sideLights.push(
+    new SideLight({
+      name: 'sideLight',
+      container: bar1.mesh,
+      z: i * 0.5 - glassUnitSize * glassCount,
+    }),
+    new SideLight({
+      name: 'sideLight4',
+      container: bar4.mesh,
+      z: i * 0.5 - glassUnitSize * glassCount,
+    }),
+  );
 }
 
 // 유리판
@@ -252,30 +255,40 @@ const checkIntersects = () => {
   }
 };
 
+let fail = false;
+let jumping = false;
 const checkClickedObject = (mesh: Mesh) => {
   if (mesh.name.indexOf('glass') !== -1) {
     // 유리판 클릭
     const asMesh = mesh as GlassMesh;
-    // if ((asMesh as GlassMesh).step - cm2.step === 1) {
-    cm2.step++;
-    switch (asMesh.type) {
-      case 'normal':
-        break;
-      case 'strong':
-        break;
+    if (!jumping && !fail && asMesh.step - cm2.step === 1) {
+      jumping = true;
+      cm2.step++;
+      player.jump();
+      switch (asMesh.type) {
+        case 'normal':
+          setTimeout(() => {
+            fail = true;
+            player.fall();
+            sideLights.forEach((item) => item.turnOff());
+          }, 700);
+          break;
+        case 'strong':
+          break;
+      }
+      const timerId = setTimeout(() => {
+        jumping = false;
+      }, 1000);
+      gsap.to(player.cannonBody.position, {
+        duration: 1,
+        x: mesh.position.x,
+        z: mesh.position.z,
+      });
+      gsap.to(player.cannonBody.position, {
+        duration: 0.4,
+        y: 12,
+      });
     }
-    gsap.to(player.cannonBody.position, {
-      duration: 1,
-      x: mesh.position.x,
-      z: mesh.position.z,
-    });
-    gsap.to(player.cannonBody.position, {
-      duration: 0.4,
-      y: 12,
-    });
-
-    console.log(cm2.step);
-    // }
   }
 };
 
@@ -290,9 +303,13 @@ function draw() {
 
   cm1.world.step(1 / 60, delta, 3);
   objects.forEach((item) => {
-    item.updatePosition();
     if (item.name === 'player' && item.modelMesh) {
       item.modelMesh.position.y += 0.15;
+      item.updatePosition();
+      if (fail) item.updateRotation();
+    } else {
+      item.updatePosition();
+      item.updateRotation();
     }
   });
 

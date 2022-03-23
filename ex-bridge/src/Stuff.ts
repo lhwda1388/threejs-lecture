@@ -25,11 +25,15 @@ export interface StuffOptions {
   mass?: number;
 }
 
-class Stuff<T extends StuffOptions, G extends BufferGeometry> {
+class Stuff<
+  T extends StuffOptions,
+  G extends BufferGeometry,
+  M extends Material,
+> {
   protected _options: T;
   protected _geometry?: G;
-  protected _material?: Material;
-  protected _mesh?: Mesh | (Object3D & { animations: AnimationClip[] });
+  protected _material?: M;
+  protected _mesh?: Mesh<G, M> | (Object3D & { animations: AnimationClip[] });
   protected _modelMesh?: Object3D & { animations: AnimationClip[] };
   protected _cannonBody?: Body;
 
@@ -136,11 +140,16 @@ class Stuff<T extends StuffOptions, G extends BufferGeometry> {
     this._mesh?.position.copy(
       this?._cannonBody?.position as unknown as Vector3,
     );
-    this._mesh?.quaternion.copy(
-      this?._cannonBody?.quaternion as unknown as Quaternion,
-    );
+
     this._modelMesh?.position.copy(
       this?._cannonBody?.position as unknown as Vector3,
+    );
+  }
+
+  updateRotation() {
+    if (!this?._cannonBody) return;
+    this._mesh?.quaternion.copy(
+      this?._cannonBody?.quaternion as unknown as Quaternion,
     );
     this._modelMesh?.quaternion.copy(
       this?._cannonBody?.quaternion as unknown as Quaternion,

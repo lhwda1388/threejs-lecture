@@ -1,6 +1,5 @@
-import { BufferGeometry, Material, Mesh, Scene } from 'three';
-import { cm1, geo, mat } from './common';
-import Stuff, { StuffOptions } from './Stuff';
+import { Mesh, Scene, SphereGeometry, MeshPhongMaterial } from 'three';
+import { cm1, cm2, geo, mat } from './common';
 
 export interface SideLightOptions {
   container?: Mesh | Scene;
@@ -12,9 +11,9 @@ export interface SideLightOptions {
 
 class SideLight {
   private _options: SideLightOptions;
-  private _geometry?: BufferGeometry;
-  private _material?: Material;
-  private _mesh?: Mesh;
+  private _geometry?: SphereGeometry;
+  private _material?: MeshPhongMaterial;
+  private _mesh?: Mesh<SphereGeometry, MeshPhongMaterial>;
   constructor({
     name = '',
     x = 0,
@@ -40,6 +39,10 @@ class SideLight {
       this._options.z as number,
     );
     container.add(this._mesh);
+  }
+
+  turnOff() {
+    this._mesh?.material.color.set(cm2.lightOffColor);
   }
 }
 

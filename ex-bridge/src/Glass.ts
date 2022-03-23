@@ -1,7 +1,7 @@
 import Stuff from './Stuff';
 import { StuffOptions } from './Stuff';
 import { geo, mat } from './common';
-import { BoxGeometry, Mesh } from 'three';
+import { BoxGeometry, Mesh, MeshPhongMaterial } from 'three';
 
 type GlassOptions = {
   type: GlassType;
@@ -11,7 +11,7 @@ type GlassOptions = {
 type GlassType = 'normal' | 'strong';
 export type GlassMesh = Mesh & { step: number; type: GlassType };
 
-class Glass extends Stuff<GlassOptions, BoxGeometry> {
+class Glass extends Stuff<GlassOptions, BoxGeometry, MeshPhongMaterial> {
   protected _mesh?: GlassMesh;
   constructor(options: GlassOptions) {
     super(options);
@@ -23,7 +23,7 @@ class Glass extends Stuff<GlassOptions, BoxGeometry> {
         break;
       case 'strong':
         this._material = mat.glass2;
-        this._options.mass = 1000;
+        this._options.mass = 0;
         break;
     }
 
